@@ -1,16 +1,16 @@
 fn main() {
     let input = include_str!("../../day4/data/input.txt");
-    let result = part1(input);
+    let mut input = parse(input);
+    let result = part1(&input).len();
     println!("Part 1: {}", result);
-    let result = part2(input);
+    let result = part2(&mut input);
     println!("Part 2: {}", result);
 }
 
-fn part1(input: &str) -> usize {
-    let values = parse(input);
+fn part1(values: &Vec<Vec<u8>>) -> Vec<(usize, usize)> {
     let i_len = values.len();
     let j_len = values[0].len();
-    let mut forkliftable = 0;
+    let mut forkliftable = vec![];
 
     for i in 0..i_len {
         for j in 0..j_len {
@@ -63,7 +63,7 @@ fn part1(input: &str) -> usize {
             }
 
             if count < 4 {
-                forkliftable += 1;
+                forkliftable.push((i, j));
             }
         }
     }
@@ -71,8 +71,22 @@ fn part1(input: &str) -> usize {
     forkliftable
 }
 
-fn part2(input: &str) -> usize {
-    todo!()
+fn part2(input: &mut Vec<Vec<u8>>) -> usize {
+    let mut count = 0;
+
+    loop {
+        let removable = part1(input);
+        if removable.len() == 0 {
+            break;
+        }
+
+        count += removable.len();
+        for rm in removable {
+            input[rm.0][rm.1] = b'.';
+        }
+    }
+
+    count
 }
 
 fn parse(input: &str) -> Vec<Vec<u8>> {
@@ -84,14 +98,16 @@ mod tests {
     #[test]
     fn part1() {
         let input = include_str!("../../day4/data/test.txt");
-        let result = super::part1(input);
+        let input = super::parse(input);
+        let result = super::part1(&input).len();
         assert_eq!(13, result);
     }
 
-    //#[test]
-    //fn part2() {
-    //    let input = include_str!("../../day4/data/test.txt");
-    //    let result = super::part2(input);
-    //    assert_eq!(3121910778619, result);
-    //}
+    #[test]
+    fn part2() {
+        let input = include_str!("../../day4/data/test.txt");
+        let mut input = super::parse(input);
+        let result = super::part2(&mut input);
+        assert_eq!(43, result);
+    }
 }
