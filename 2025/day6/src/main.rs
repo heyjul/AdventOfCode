@@ -31,7 +31,48 @@ fn part1(values: &str) -> usize {
 }
 
 fn part2(input: &str) -> usize {
-    todo!()
+    let lines: Vec<_> = input.lines().map(|x| x.as_bytes()).collect();
+    let max_len = lines.iter().map(|x| x.len()).max().unwrap();
+
+    let mut count = 0;
+    let mut values: Vec<usize> = vec![];
+    let mut v_index = 0;
+    let mut next_line = false;
+    for i in (0..max_len).rev() {
+        for j in 0..lines.len() {
+            match lines[j].get(i) {
+                Some(x) if x.is_ascii_digit() => {
+                    if let Some(val) = values.get_mut(v_index) {
+                        *val *= 10;
+                        *val += (x - b'0') as usize;
+                    } else {
+                        values.push((x - b'0') as usize);
+                    }
+
+                    next_line = true;
+                }
+                Some(x) if *x == b'*' => {
+                    count += values.iter().product::<usize>();
+                    values = vec![];
+                    v_index = 0;
+                    next_line = false;
+                }
+                Some(x) if *x == b'+' => {
+                    count += values.iter().sum::<usize>();
+                    values = vec![];
+                    v_index = 0;
+                    next_line = false;
+                }
+                _ => {}
+            }
+        }
+
+        if next_line {
+            v_index += 1;
+        }
+    }
+
+    count
 }
 
 fn parse(input: &str) -> (usize, Vec<Value>) {
