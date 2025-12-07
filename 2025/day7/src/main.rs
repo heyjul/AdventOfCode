@@ -34,42 +34,38 @@ fn part1(values: &str) -> usize {
 }
 
 fn part2(input: &str) -> usize {
-    let lines: Vec<_> = input.lines().map(|line| line.as_bytes()).collect();
-    for (i, line) in lines.iter().enumerate() {
-        for (j, x) in line.iter().enumerate() {
+    let lines: Vec<_> = input.lines().collect();
+    let mut beams = vec![0; lines.first().unwrap().len()];
+    for line in lines {
+        for (i, x) in line.as_bytes().iter().enumerate() {
             if *x == b'S' {
-                return solve(j, &lines[(i + 1)..]) + 1;
+                beams[i] = 1;
+                continue;
+            }
+
+            let val = beams[i];
+            if *x == b'^' && val > 0 {
+                if let Some(j) = i.checked_sub(1) {
+                    beams[j] += val;
+                }
+                if let Some(x) = beams.get_mut(i + 1) {
+                    *x += val;
+                }
+                beams[i] = 0;
             }
         }
     }
-    0
+
+    beams.iter().sum()
 }
-
-fn solve(beam: usize, lines: &[&[u8]]) -> usize {
-    let mut count = 0;
-    let mut stop = false;
-    for (i, line) in lines.iter().enumerate() {
-        for (j, x) in line.iter().enumerate() {
-            if *x == b'^' && beam == j {
-                stop = true;
-                count += 1;
-                if let Some(j) = j.checked_sub(1) {
-                    count += solve(j, &lines[(i + 1)..]);
-                }
-                if j + 1 < line.len() {
-                    count += solve(j + 1, &lines[(i + 1)..]);
-                }
-            }
-        }
-
-        if stop {
-            break;
-        }
-    }
-
-    count
-}
-
+//         1
+//        1 1
+//       1 2 1
+//      1 3 3 1
+//     1 4 331 1
+//    1 5 434 2 1
+//   1 154 74 21 1
+//1 2 10 11 11 211 1
 #[cfg(test)]
 mod tests {
     #[test]
