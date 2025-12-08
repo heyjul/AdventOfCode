@@ -1,5 +1,5 @@
 fn main() {
-    let input = include_str!("../../day1/data/part1.txt");
+    let input = include_str!("../../day1/data/input.txt");
     let count = parse(input);
 
     println!("{count}");
